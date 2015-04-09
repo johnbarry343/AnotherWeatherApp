@@ -1,9 +1,13 @@
 package com.example.android.sunshine.app;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -20,6 +24,7 @@ import android.widget.ListView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.service.SunshineService;
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -133,10 +138,21 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void updateWeather()
     {
-        String location = Utility.getPreferredLocation(getActivity());
-        Intent intent = new Intent(getActivity(), SunshineService.class);
-        intent.putExtra("location", location);
-        getActivity().startService(intent);
+//        String location = Utility.getPreferredLocation(getActivity());
+//
+//        AlarmManager alarmManager = (AlarmManager) getActivity()
+//                .getSystemService(Context.ALARM_SERVICE);
+//
+//        Intent intent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+//        intent.putExtra("location", location);
+//
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+//
+//        alarmManager
+//                .set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() + 5000,
+//                        pendingIntent);
+
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     public void onLocationChanged()
@@ -189,9 +205,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     }
 
-    public void setUseTodayLayout(boolean useTodayLayout) {
+    public void setUseTodayLayout(boolean useTodayLayout)
+    {
         mUseTodayLayout = useTodayLayout;
-        if (mForecastAdapter != null) {
+        if (mForecastAdapter != null)
+        {
             mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
         }
     }
