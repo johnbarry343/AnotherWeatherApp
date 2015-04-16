@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Vector;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter
@@ -320,6 +321,11 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter
                 cVVector.toArray(cVArray);
                 mContext.getContentResolver()
                         .bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, cVArray);
+                Calendar calendar = Calendar.getInstance();
+                long yesterday = calendar.getTimeInMillis() - (1000 * 60 * 60 * 24);
+                String[] selectionArgs = new String[]{Long.toString(yesterday)};
+                mContext.getContentResolver().delete(WeatherContract.WeatherEntry.CONTENT_URI,
+                        WeatherContract.WeatherEntry.COLUMN_DATE + " <=?", selectionArgs);
             }
 
 

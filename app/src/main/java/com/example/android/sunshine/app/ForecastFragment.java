@@ -1,5 +1,6 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -122,17 +122,37 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        if (item.getItemId() == R.id.action_refresh)
+        if (item.getItemId() == R.id.action_settings)
         {
-            updateWeather();
+            startActivity(new Intent(getActivity(), SettingsActivity.class));
+            return true;
+        }
+        else if (item.getItemId() == R.id.action_map)
+        {
+            showMap();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateWeather()
+    public void showMap()
     {
-        SunshineSyncAdapter.syncImmediately(getActivity());
+        String[] projection = new String[]{WeatherContract.LocationEntry.COLUMN_COORD_LAT,
+                WeatherContract.LocationEntry.COLUMN_COORD_LONG
+        };
+        String[] selectionArgs = new String[]{Utility.getPreferredLocation(getActivity())};
+        Cursor cursor = getActivity().getContentResolver()
+                .query(WeatherContract.LocationEntry.CONTENT_URI, projection,
+                        WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " =?", selectionArgs, null);
+        cursor.moveToFirst();
+        Uri geoLocation = Uri.parse("geo:" + cursor.getString(0) + "," + cursor.getString(1));
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null)
+        {
+            startActivity(intent);
+        }
     }
 
     public void onLocationChanged()
